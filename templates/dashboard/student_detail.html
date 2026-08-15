@@ -1,0 +1,125 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ student.name }}{% endblock %}
+{% block page_title %}👁 Student Detail{% endblock %}
+
+{% block content %}
+<!-- Action Bar -->
+<div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;align-items:center;">
+  <a href="{% url 'admin_students' %}" class="btn btn-secondary">← Back</a>
+  <a href="{% url 'admin_student_edit' student.pk %}" class="btn btn-warning">✏️ Edit Student</a>
+  <a href="{% url 'export_pdf' %}?student_id={{ student.pk }}" class="btn btn-sm" style="background:#db2777;color:#fff;">📄 Download PDF</a>
+  <a href="{% url 'admin_student_delete' student.pk %}" class="btn btn-danger"
+     data-confirm="Are you sure you want to delete {{ student.name }}? This cannot be undone.">🗑 Delete</a>
+</div>
+
+<!-- Student header -->
+<div style="background:linear-gradient(135deg,#1e3a5f,#2563eb);border-radius:16px;padding:24px 28px;margin-bottom:24px;color:#fff;display:flex;align-items:center;gap:20px;">
+  <div style="width:64px;height:64px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;">
+    {% if student.gender == 'Female' %}👩‍🎓{% else %}👨‍🎓{% endif %}
+  </div>
+  <div>
+    <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:4px;">{{ student.name }}</h2>
+    <p style="opacity:.8;font-size:.9rem;">{{ student.program_of_study }} — {{ student.branch }}</p>
+    <p style="opacity:.7;font-size:.82rem;">Enrollment: {{ student.enrollment_number }} | Submitted: {{ student.created_at|date:"d M Y, H:i" }}</p>
+  </div>
+</div>
+
+<div class="detail-grid">
+  <!-- Personal Info -->
+  <div class="detail-section">
+    <div class="detail-section-header">👤 Personal Information</div>
+    <div class="detail-section-body">
+      <div class="detail-row"><span class="detail-key">Name</span><span class="detail-value">{{ student.name }}</span></div>
+      <div class="detail-row"><span class="detail-key">Enrollment No.</span><span class="detail-value"><code>{{ student.enrollment_number }}</code></span></div>
+      <div class="detail-row"><span class="detail-key">Exam Reg. No.</span><span class="detail-value"><code>{{ student.exam_registration_number }}</code></span></div>
+      <div class="detail-row"><span class="detail-key">UMIS No.</span><span class="detail-value"><code>{{ student.umis_number }}</code></span></div>
+      <div class="detail-row"><span class="detail-key">Program</span><span class="detail-value"><span class="badge badge-info">{{ student.program_of_study }}</span></span></div>
+      <div class="detail-row"><span class="detail-key">Branch</span><span class="detail-value">{{ student.branch }}</span></div>
+      <div class="detail-row"><span class="detail-key">Year of Completion</span><span class="detail-value">{{ student.year_of_completion }}</span></div>
+      <div class="detail-row"><span class="detail-key">Email</span><span class="detail-value"><a href="mailto:{{ student.email }}">{{ student.email }}</a></span></div>
+      <div class="detail-row"><span class="detail-key">Mobile</span><span class="detail-value">{{ student.mobile }}</span></div>
+      <div class="detail-row"><span class="detail-key">Alternate Mobile</span><span class="detail-value">{{ student.alternate_mobile|default:"—" }}</span></div>
+      <div class="detail-row"><span class="detail-key">Date of Birth</span><span class="detail-value">{{ student.date_of_birth|date:"d-m-Y" }}</span></div>
+      <div class="detail-row"><span class="detail-key">Gender</span><span class="detail-value">{{ student.gender }}</span></div>
+      <div class="detail-row"><span class="detail-key">Category</span><span class="detail-value">{{ student.category }}</span></div>
+      <div class="detail-row"><span class="detail-key">Blood Group</span><span class="detail-value"><span class="badge badge-danger">{{ student.blood_group }}</span></span></div>
+    </div>
+  </div>
+
+  <!-- Identification -->
+  <div class="detail-section">
+    <div class="detail-section-header">🪪 Identification</div>
+    <div class="detail-section-body">
+      <div class="detail-row"><span class="detail-key">PAN Number</span><span class="detail-value">{{ student.pan_number|default:"—" }}</span></div>
+      <div class="detail-row"><span class="detail-key">Aadhaar (masked)</span><span class="detail-value">
+        {% if student.aadhaar_number %}XXXX-XXXX-{{ student.aadhaar_number|slice:"-4:" }}{% else %}—{% endif %}
+      </span></div>
+      <div class="detail-row"><span class="detail-key">Passport No.</span><span class="detail-value">{{ student.passport_number|default:"—" }}</span></div>
+    </div>
+
+    <div class="detail-section-header" style="margin-top:2px;">👨‍👩‍👧 Family Information</div>
+    <div class="detail-section-body">
+      <div class="detail-row"><span class="detail-key">Permanent Address</span><span class="detail-value">{{ student.permanent_address }}</span></div>
+      <div class="detail-row"><span class="detail-key">Guardian Name</span><span class="detail-value">{{ student.guardian_name }}</span></div>
+      <div class="detail-row"><span class="detail-key">Guardian Mobile</span><span class="detail-value">{{ student.guardian_mobile }}</span></div>
+      <div class="detail-row"><span class="detail-key">Guardian Occupation</span><span class="detail-value">{{ student.guardian_occupation }}</span></div>
+      <div class="detail-row"><span class="detail-key">Annual Income</span><span class="detail-value">₹{{ student.guardian_annual_income|floatformat:2 }}</span></div>
+    </div>
+  </div>
+
+  <!-- Academic -->
+  <div class="detail-section">
+    <div class="detail-section-header">📚 Academic Information</div>
+    <div class="detail-section-body">
+      <div class="detail-row"><span class="detail-key">10th %</span><span class="detail-value">{{ student.tenth_percentage }}%</span></div>
+      <div class="detail-row"><span class="detail-key">10th Year</span><span class="detail-value">{{ student.tenth_passing_year }}</span></div>
+      <div class="detail-row"><span class="detail-key">12th %</span><span class="detail-value">{% if student.twelfth_percentage %}{{ student.twelfth_percentage }}%{% else %}N/A{% endif %}</span></div>
+      <div class="detail-row"><span class="detail-key">12th Year</span><span class="detail-value">{{ student.twelfth_passing_year|default:"N/A" }}</span></div>
+      <div class="detail-row"><span class="detail-key">Diploma %</span><span class="detail-value">{% if student.diploma_percentage %}{{ student.diploma_percentage }}%{% else %}N/A{% endif %}</span></div>
+      <div class="detail-row"><span class="detail-key">Diploma Year</span><span class="detail-value">{{ student.diploma_passing_year|default:"N/A" }}</span></div>
+      <div class="detail-row"><span class="detail-key">OGPA</span><span class="detail-value"><strong>{{ student.ogpa }}</strong></span></div>
+    </div>
+  </div>
+
+  <!-- Arrears + Skills -->
+  <div class="detail-section">
+    <div class="detail-section-header">📊 Arrears</div>
+    <div class="detail-section-body">
+      <div class="detail-row"><span class="detail-key">History of Arrears</span><span class="detail-value">{% if student.history_of_arrears %}<span class="badge badge-warning">Yes</span>{% else %}<span class="badge badge-success">No</span>{% endif %}</span></div>
+      <div class="detail-row"><span class="detail-key">Current Backlog</span><span class="detail-value">{% if student.current_backlog %}<span class="badge badge-danger">Yes</span>{% else %}<span class="badge badge-success">No</span>{% endif %}</span></div>
+      <div class="detail-row"><span class="detail-key">No. of Backlogs</span><span class="detail-value">{{ student.number_of_backlogs }}</span></div>
+      <div class="detail-row"><span class="detail-key">Remarks</span><span class="detail-value">{{ student.remarks|default:"—" }}</span></div>
+    </div>
+
+    <div class="detail-section-header" style="margin-top:2px;">💻 Skills</div>
+    <div class="detail-section-body">
+      <div class="detail-row"><span class="detail-key">Programming</span><span class="detail-value">{{ student.programming_languages|default:"—" }}</span></div>
+      <div class="detail-row"><span class="detail-key">Communication</span><span class="detail-value">{{ student.communication_languages|default:"—" }}</span></div>
+      <div class="detail-row"><span class="detail-key">Additional Skills</span><span class="detail-value">{{ student.additional_skills|default:"—" }}</span></div>
+    </div>
+  </div>
+
+  <!-- Career, Facilities, Internship -->
+  <div class="detail-section detail-full">
+    <div class="detail-section-header">🎯 Career, Internship & Courses</div>
+    <div class="detail-section-body" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;">
+      <div>
+        <div class="detail-row"><span class="detail-key">Career Preference</span><span class="detail-value"><span class="badge badge-info">{{ student.career_preference }}</span></span></div>
+        <div class="detail-row"><span class="detail-key">Willing to Relocate</span><span class="detail-value">{{ student.willingness_to_relocate }}</span></div>
+        <div class="detail-row"><span class="detail-key">Laptop/PC</span><span class="detail-value">{% if student.laptop_desktop %}<span class="badge badge-success">Yes</span>{% else %}<span class="badge badge-danger">No</span>{% endif %}</span></div>
+        <div class="detail-row"><span class="detail-key">High-Speed Internet</span><span class="detail-value">{% if student.high_speed_internet %}<span class="badge badge-success">Yes</span>{% else %}<span class="badge badge-danger">No</span>{% endif %}</span></div>
+      </div>
+      <div>
+        <div class="detail-row"><span class="detail-key">Internship Company</span><span class="detail-value">{{ student.internship_company|default:"—" }}</span></div>
+        <div class="detail-row"><span class="detail-key">Internship Dates</span><span class="detail-value">{{ student.internship_dates|default:"—" }}</span></div>
+        <div class="detail-row"><span class="detail-key">Future Internship</span><span class="detail-value">{% if student.future_internship %}<span class="badge badge-success">Yes</span>{% else %}<span class="badge badge-danger">No</span>{% endif %}</span></div>
+      </div>
+      <div>
+        <div class="detail-row"><span class="detail-key">NPTEL/SWAYAM Courses</span><span class="detail-value">{{ student.nptel_courses|default:"—" }}</span></div>
+        <div class="detail-row"><span class="detail-key">TPC Acceptance</span><span class="detail-value">{% if student.tpc_acceptance %}<span class="badge badge-success">✅ Accepted</span>{% else %}<span class="badge badge-danger">Not Accepted</span>{% endif %}</span></div>
+        <div class="detail-row"><span class="detail-key">Last Updated</span><span class="detail-value">{{ student.updated_at|date:"d M Y, H:i" }}</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Admin Login — TPC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">🔐</div>
+      <h2>Admin Login</h2>
+      <p>Training & Placement Cell — GPC</p>
+    </div>
+    <div class="login-body">
+      {% if messages %}
+        {% for msg in messages %}
+        <div class="alert {% if msg.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}" style="margin-bottom:16px;">
+          {{ msg }}
+        </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" id="loginForm">
+        {% csrf_token %}
+        <div class="login-group">
+          <label for="username">👤 Username</label>
+          <input type="text" name="username" id="username" class="login-input"
+                 placeholder="Enter admin username" required autofocus
+                 autocomplete="username">
+        </div>
+        <div class="login-group">
+          <label for="password">🔑 Password</label>
+          <div style="position:relative;">
+            <input type="password" name="password" id="password" class="login-input"
+                   placeholder="Enter password" required
+                   autocomplete="current-password" style="padding-right:44px;">
+            <button type="button" id="togglePwd" onclick="togglePassword()"
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;">
+              👁
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="login-btn">Login →</button>
+      </form>
+
+      <div class="login-back">
+        <a href="{% url 'index' %}">← Back to Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePassword() {
+  var pwd = document.getElementById('password');
+  pwd.type = pwd.type === 'password' ? 'text' : 'password';
+}
+</script>
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

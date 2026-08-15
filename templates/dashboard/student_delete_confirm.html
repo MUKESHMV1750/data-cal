@@ -1,0 +1,29 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Delete Student{% endblock %}
+{% block page_title %}🗑 Delete Student{% endblock %}
+
+{% block content %}
+<div class="delete-confirm-card">
+  <div class="delete-confirm-icon">⚠️</div>
+  <h3 style="font-size:1.3rem;font-weight:800;color:#1f2937;margin-bottom:8px;">Delete Student Record</h3>
+  <p style="color:#6b7280;margin-bottom:20px;line-height:1.6;">
+    Are you sure you want to permanently delete the record for<br>
+    <strong style="color:#1f2937;">{{ student.name }}</strong> ({{ student.enrollment_number }})?<br>
+    <span style="color:#ef4444;font-size:.88rem;">This action cannot be undone.</span>
+  </p>
+  <div style="background:#fff5f5;border:1px solid #fecaca;border-radius:10px;padding:14px;margin-bottom:24px;font-size:.88rem;color:#991b1b;text-align:left;">
+    <strong>Student to be deleted:</strong><br>
+    📛 Name: {{ student.name }}<br>
+    🎓 Program: {{ student.program_of_study }} — {{ student.branch }}<br>
+    📧 Email: {{ student.email }}<br>
+    📅 Submitted: {{ student.created_at|date:"d M Y" }}
+  </div>
+  <form method="post" style="display:inline;">
+    {% csrf_token %}
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <button type="submit" class="btn btn-danger btn-lg">🗑 Yes, Delete</button>
+      <a href="{% url 'admin_student_detail' student.pk %}" class="btn btn-secondary btn-lg">✕ Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

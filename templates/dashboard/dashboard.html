@@ -1,0 +1,205 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}📊 Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stat Cards -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon blue">👨‍🎓</div>
+    <div class="stat-info">
+      <div class="stat-value" data-target="{{ total_students }}">{{ total_students }}</div>
+      <div class="stat-label">Total Students</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green">📅</div>
+    <div class="stat-info">
+      <div class="stat-value" data-target="{{ today_count }}">{{ today_count }}</div>
+      <div class="stat-label">Today's Submissions</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon yellow">📆</div>
+    <div class="stat-info">
+      <div class="stat-value" data-target="{{ week_count }}">{{ week_count }}</div>
+      <div class="stat-label">This Week</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple">🗓</div>
+    <div class="stat-info">
+      <div class="stat-value" data-target="{{ month_count }}">{{ month_count }}</div>
+      <div class="stat-label">This Month</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon {% if form_open %}green{% else %}red{% endif %}">
+      {% if form_open %}🟢{% else %}🔴{% endif %}
+    </div>
+    <div class="stat-info">
+      <div class="stat-value" style="font-size:1.2rem;">{% if form_open %}OPEN{% else %}CLOSED{% endif %}</div>
+      <div class="stat-label">Form Status</div>
+      <span class="stat-badge {% if form_open %}badge-open{% else %}badge-closed{% endif %}">
+        <span class="status-dot {% if form_open %}open{% else %}closed{% endif %}"></span>
+        {% if form_open %}Active{% else %}Inactive{% endif %}
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+  <a href="{% url 'admin_students' %}" class="btn btn-primary">👨‍🎓 View All Students</a>
+  <a href="{% url 'admin_form_control' %}" class="btn btn-warning">⚙️ Form Control</a>
+  <a href="{% url 'export_excel' %}" class="btn btn-success">📊 Export Excel</a>
+  <a href="{% url 'export_pdf' %}" class="btn btn-danger" style="background:#db2777;">📄 Export PDF</a>
+  <a href="{% url 'admin_reports' %}" class="btn btn-outline">📈 Reports</a>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-grid" style="display:grid; grid-template-columns: 2fr 1fr; gap:24px; margin-bottom:24px;">
+  <div class="chart-card table-card" style="padding:20px;">
+    <h3 style="margin-bottom:16px;font-size:1rem;color:#1f2937;">📈 Registrations (Last 7 Days)</h3>
+    <div style="position:relative; height:280px; width:100%;">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
+  <div class="chart-card table-card" style="padding:20px;">
+    <h3 style="margin-bottom:16px;font-size:1rem;color:#1f2937;">🍩 Program Distribution</h3>
+    <div style="position:relative; height:280px; width:100%;">
+      <canvas id="pieChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<style>
+@media (max-width: 768px) {
+  .charts-grid { grid-template-columns: 1fr !important; }
+}
+</style>
+
+<!-- Recent Submissions -->
+<div class="table-card">
+  <div class="table-card-header">
+    <h3>🕐 Recent Submissions</h3>
+    <a href="{% url 'admin_students' %}" class="btn btn-primary btn-sm">View All →</a>
+  </div>
+  <div class="table-wrapper">
+    {% if recent_students %}
+    <table class="dash-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Student Name</th>
+          <th>Enrollment No.</th>
+          <th>Program</th>
+          <th>Branch</th>
+          <th>Year</th>
+          <th>Submitted</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in recent_students %}
+        <tr>
+          <td data-label="#">{{ forloop.counter }}</td>
+          <td data-label="Name"><strong>{{ student.name }}</strong></td>
+          <td data-label="Enrollment">{{ student.enrollment_number }}</td>
+          <td data-label="Program"><span class="badge badge-info">{{ student.program_of_study }}</span></td>
+          <td data-label="Branch">{{ student.branch }}</td>
+          <td data-label="Year">{{ student.year_of_completion }}</td>
+          <td data-label="Submitted">{{ student.created_at|date:"d M Y" }}</td>
+          <td data-label="Action">
+            <div class="action-btns">
+              <a href="{% url 'admin_student_detail' student.pk %}" class="btn-action btn-view">👁 View</a>
+              <a href="{% url 'admin_student_edit' student.pk %}" class="btn-action btn-edit">✏️ Edit</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h4>No submissions yet</h4>
+      <p>Student records will appear here once the form is submitted.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{{ chart_dates|json_script:"chartDatesData" }}
+{{ chart_counts|json_script:"chartCountsData" }}
+{{ pie_labels|json_script:"pieLabelsData" }}
+{{ pie_data|json_script:"pieDataData" }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartDates = JSON.parse(document.getElementById('chartDatesData').textContent || "[]");
+    const chartCounts = JSON.parse(document.getElementById('chartCountsData').textContent || "[]");
+    const pieLabels = JSON.parse(document.getElementById('pieLabelsData').textContent || "[]");
+    const pieData = JSON.parse(document.getElementById('pieDataData').textContent || "[]");
+
+    // Trend Chart (Line / Stock)
+    const ctxTrend = document.getElementById('trendChart');
+    if (ctxTrend) {
+        new Chart(ctxTrend.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: chartDates,
+                datasets: [{
+                    label: 'Registrations',
+                    data: chartCounts,
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#2563eb',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // Pie Chart (Doughnut)
+    const ctxPie = document.getElementById('pieChart');
+    if (ctxPie) {
+        new Chart(ctxPie.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    data: pieData,
+                    backgroundColor: ['#1e40af', '#3b82f6', '#93c5fd', '#1e3a5f', '#bfdbfe'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: "'Poppins', sans-serif" } } } },
+                cutout: '65%'
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

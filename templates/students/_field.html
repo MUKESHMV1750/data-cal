@@ -1,0 +1,37 @@
+{% load static %}
+<div class="form-group {% if field.field.required or required %}{% endif %} {% if field.html_name == 'permanent_address' or field.html_name == 'remarks' or field.html_name == 'additional_skills' %}full{% endif %}">
+  <label for="{{ field.id_for_label }}">
+    {{ field.label }}
+    {% if field.field.required or required %}<span class="req">*</span>{% endif %}
+  </label>
+  {% if field.field.widget.input_type == 'select' %}
+    <select name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+      class="form-control {% if field.errors %}is-invalid{% endif %}"
+      {% if field.field.required or required %}required{% endif %}>
+      <option value="">— Select —</option>
+      {% for val, label in field.field.choices %}
+        {% if val %}
+        <option value="{{ val }}" {% if field.value == val %}selected{% endif %}>{{ label }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  {% elif field.field.widget.input_type == 'checkbox' %}
+    <div class="radio-group">
+      <label class="radio-item">
+        <input type="radio" name="{{ field.html_name }}" value="True"
+          {% if field.value == True or field.value == 'True' %}checked{% endif %}
+          {% if field.field.required or required %}required{% endif %}>
+        <span>Yes</span>
+      </label>
+      <label class="radio-item">
+        <input type="radio" name="{{ field.html_name }}" value="False"
+          {% if field.value == False or field.value == 'False' or field.value == '' %}checked{% endif %}>
+        <span>No</span>
+      </label>
+    </div>
+  {% else %}
+    {{ field }}
+  {% endif %}
+  {% if hint %}<div class="form-hint">ℹ {{ hint }}</div>{% endif %}
+  {% if field.errors %}<div class="invalid-feedback">⚠ {{ field.errors.0 }}</div>{% endif %}
+</div>

@@ -1,0 +1,154 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}📈 Reports{% endblock %}
+
+{% block content %}
+<!-- Summary Stats -->
+<div class="stats-grid" style="margin-bottom:24px;">
+  <div class="stat-card"><div class="stat-icon blue">👨‍🎓</div><div class="stat-info"><div class="stat-value">{{ total_students }}</div><div class="stat-label">Total Students</div></div></div>
+  <div class="stat-card"><div class="stat-icon green">📅</div><div class="stat-info"><div class="stat-value">{{ today_count }}</div><div class="stat-label">Today</div></div></div>
+  <div class="stat-card"><div class="stat-icon yellow">📆</div><div class="stat-info"><div class="stat-value">{{ week_count }}</div><div class="stat-label">This Week</div></div></div>
+  <div class="stat-card"><div class="stat-icon purple">🗓</div><div class="stat-info"><div class="stat-value">{{ month_count }}</div><div class="stat-label">This Month</div></div></div>
+</div>
+
+<!-- Export buttons -->
+<div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+  <a href="{% url 'export_pdf' %}" class="btn btn-sm" style="background:#db2777;color:#fff;">📄 Export All PDF</a>
+  <a href="{% url 'export_excel' %}" class="btn btn-success btn-sm">📊 Export All Excel</a>
+</div>
+
+<div class="reports-grid">
+  <!-- Program Report -->
+  <div class="report-card">
+    <h4>🎓 Program-wise</h4>
+    {% for item in program_stats %}
+    <div class="report-bar">
+      <span class="report-bar-label" title="{{ item.program_of_study }}">{{ item.program_of_study }}</span>
+      <div class="report-bar-track">
+        <div class="report-bar-fill" data-width="{{ item.percent }}" style="background:linear-gradient(90deg,#1e40af,#3b82f6);"></div>
+      </div>
+      <span class="report-bar-count">{{ item.count }}</span>
+    </div>
+    {% empty %}<p style="color:#9ca3af;font-size:.85rem;">No data</p>{% endfor %}
+  </div>
+
+  <!-- Branch Report -->
+  <div class="report-card">
+    <h4>🏗 Branch-wise</h4>
+    {% for item in branch_stats %}
+    <div class="report-bar">
+      <span class="report-bar-label" title="{{ item.branch }}">{{ item.branch|truncatechars:28 }}</span>
+      <div class="report-bar-track">
+        <div class="report-bar-fill" data-width="{{ item.percent }}"></div>
+      </div>
+      <span class="report-bar-count">{{ item.count }}</span>
+    </div>
+    {% empty %}<p style="color:#9ca3af;font-size:.85rem;">No data</p>{% endfor %}
+  </div>
+
+  <!-- Gender Report -->
+  <div class="report-card">
+    <h4>👥 Gender-wise</h4>
+    {% for item in gender_stats %}
+    <div class="report-bar">
+      <span class="report-bar-label">{% if item.gender == 'Male' %}👨 {% elif item.gender == 'Female' %}👩 {% endif %}{{ item.gender }}</span>
+      <div class="report-bar-track">
+        <div class="report-bar-fill" data-width="{{ item.percent }}" style="background:linear-gradient(90deg,#059669,#34d399);"></div>
+      </div>
+      <span class="report-bar-count">{{ item.count }}</span>
+    </div>
+    {% empty %}<p style="color:#9ca3af;font-size:.85rem;">No data</p>{% endfor %}
+  </div>
+
+  <!-- Category Report -->
+  <div class="report-card">
+    <h4>🏷 Category-wise</h4>
+    {% for item in category_stats %}
+    <div class="report-bar">
+      <span class="report-bar-label">{{ item.category }}</span>
+      <div class="report-bar-track">
+        <div class="report-bar-fill" data-width="{{ item.percent }}" style="background:linear-gradient(90deg,#7c3aed,#a78bfa);"></div>
+      </div>
+      <span class="report-bar-count">{{ item.count }}</span>
+    </div>
+    {% empty %}<p style="color:#9ca3af;font-size:.85rem;">No data</p>{% endfor %}
+  </div>
+
+  <!-- Backlog Report -->
+  <div class="report-card">
+    <h4>📊 Backlog Status</h4>
+    <div class="report-bar">
+      <span class="report-bar-label">✅ No Backlog</span>
+      <div class="report-bar-track">
+        <div class="report-bar-fill" data-width="{{ backlog_no_pct }}" style="background:linear-gradient(90deg,#059669,#34d399);"></div>
+      </div>
+      <span class="report-bar-count">{{ backlog_no }}</span>
+    </div>
+    <div class="report-bar">
+      <span class="report-bar-label">❌ Has Backlog</span>
+      <div class="report-bar-track">
+        <div class="report-bar-fill" data-width="{{ backlog_yes_pct }}" style="background:linear-gradient(90deg,#dc2626,#f87171);"></div>
+      </div>
+      <span class="report-bar-count">{{ backlog_yes }}</span>
+    </div>
+  </div>
+
+  <!-- Internship Report -->
+  <div class="report-card">
+    <h4>🏢 Internship Status</h4>
+    <div class="report-bar">
+      <span class="report-bar-label">✅ Done Internship</span>
+      <div class="report-bar-track">
+        <div class="report-bar-fill" data-width="{{ internship_yes_pct }}" style="background:linear-gradient(90deg,#059669,#34d399);"></div>
+      </div>
+      <span class="report-bar-count">{{ internship_yes }}</span>
+    </div>
+    <div class="report-bar">
+      <span class="report-bar-label">— No Internship</span>
+      <div class="report-bar-track">
+        <div class="report-bar-fill" data-width="{{ internship_no_pct }}" style="background:linear-gradient(90deg,#6b7280,#9ca3af);"></div>
+      </div>
+      <span class="report-bar-count">{{ internship_no }}</span>
+    </div>
+  </div>
+
+  <!-- Career Preference -->
+  <div class="report-card">
+    <h4>🎯 Career Preference</h4>
+    {% for item in career_stats %}
+    <div class="report-bar">
+      <span class="report-bar-label" title="{{ item.career_preference }}">{{ item.career_preference|truncatechars:30 }}</span>
+      <div class="report-bar-track">
+        <div class="report-bar-fill" data-width="{{ item.percent }}" style="background:linear-gradient(90deg,#d97706,#fbbf24);"></div>
+      </div>
+      <span class="report-bar-count">{{ item.count }}</span>
+    </div>
+    {% empty %}<p style="color:#9ca3af;font-size:.85rem;">No data</p>{% endfor %}
+  </div>
+
+  <!-- Year Report -->
+  <div class="report-card">
+    <h4>📅 Year of Completion</h4>
+    {% for item in year_stats %}
+    <div class="report-bar">
+      <span class="report-bar-label">{{ item.year_of_completion }}</span>
+      <div class="report-bar-track">
+        <div class="report-bar-fill" data-width="{{ item.percent }}" style="background:linear-gradient(90deg,#0891b2,#22d3ee);"></div>
+      </div>
+      <span class="report-bar-count">{{ item.count }}</span>
+    </div>
+    {% empty %}<p style="color:#9ca3af;font-size:.85rem;">No data</p>{% endfor %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".report-bar-fill").forEach(function(el) {
+      var width = el.getAttribute("data-width");
+      if (width) {
+        setTimeout(function() { el.style.width = width + '%'; }, 100);
+      }
+    });
+  });
+</script>
+{% endblock %}

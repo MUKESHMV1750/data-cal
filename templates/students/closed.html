@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Form Closed — TPC</title>
+  {% load static %}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="closed-page">
+  <div class="closed-card">
+    <div class="closed-icon">🔒</div>
+    <h2>Form Currently Closed</h2>
+    <p>
+      The <strong>Student Data Collection Form</strong> is currently closed.<br>
+      Please contact the Training &amp; Placement Cell (TPC) administrator for more information.
+    </p>
+    {% if form_settings and form_settings.opening_date %}
+    <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:16px;margin-bottom:24px;font-size:.88rem;color:rgba(255,255,255,.8);">
+      <p>📅 Form opens: <strong>{{ form_settings.opening_date|date:"d-m-Y" }} at {{ form_settings.opening_time|time:"H:i" }}</strong></p>
+      {% if form_settings.closing_date %}
+      <p style="margin-top:4px;">📅 Form closes: <strong>{{ form_settings.closing_date|date:"d-m-Y" }} at {{ form_settings.closing_time|time:"H:i" }}</strong></p>
+      {% endif %}
+    </div>
+    {% endif %}
+    <a href="{% url 'index' %}" class="btn-hero-secondary" style="display:inline-flex;align-items:center;gap:8px;">
+      🏠 Go to Home
+    </a>
+  </div>
+</div>
+</body>
+</html>

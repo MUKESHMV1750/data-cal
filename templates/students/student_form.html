@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Data Collection Form — TPC</title>
+  {% load static %}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/form.css' %}">
+</head>
+<body>
+<div class="form-page">
+  <div class="form-container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="{% url 'index' %}">🏠 Home</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Student Data Collection Form</span>
+    </div>
+
+    <!-- Header -->
+    <div class="form-header-card">
+      <h2>📋 Student Data Collection Form</h2>
+      <p>Annamalai University — Training &amp; Placement Cell | Fill all required fields carefully</p>
+      <div class="form-progress-bar">
+        <div class="form-progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- Error summary -->
+    {% if form.errors %}
+    <div class="alert alert-danger" style="margin-top:16px;">
+      <span>⚠</span>
+      <div>
+        <strong>Please correct the following errors:</strong>
+        <ul style="margin-top:6px;padding-left:18px;">
+          {% for field in form %}{% for error in field.errors %}<li>{{ field.label }}: {{ error }}</li>{% endfor %}{% endfor %}
+          {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Form body -->
+    <div class="form-body">
+      <form method="post" id="studentForm" novalidate>
+        {% csrf_token %}
+
+        <!-- A. PERSONAL INFORMATION -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">👤</span>
+            <span>A. Personal Information</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body">
+            {% include "students/_field.html" with field=form.name required=True %}
+            {% include "students/_field.html" with field=form.enrollment_number required=True %}
+            {% include "students/_field.html" with field=form.exam_registration_number required=True %}
+            {% include "students/_field.html" with field=form.umis_number required=True %}
+            {% include "students/_field.html" with field=form.program_of_study required=True %}
+            {% include "students/_field.html" with field=form.branch required=True %}
+            {% include "students/_field.html" with field=form.year_of_completion required=True %}
+            {% include "students/_field.html" with field=form.email required=True %}
+            {% include "students/_field.html" with field=form.mobile required=True %}
+            {% include "students/_field.html" with field=form.alternate_mobile required=False %}
+            {% include "students/_field.html" with field=form.date_of_birth required=True %}
+            {% include "students/_field.html" with field=form.gender required=True %}
+            {% include "students/_field.html" with field=form.category required=True %}
+            {% include "students/_field.html" with field=form.blood_group required=True %}
+          </div>
+        </div>
+
+        <!-- B. IDENTIFICATION -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">🪪</span>
+            <span>B. Identification Information</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body">
+            {% include "students/_field.html" with field=form.pan_number required=False hint="Format: ABCDE1234F" %}
+            {% include "students/_field.html" with field=form.aadhaar_number required=False hint="12-digit Aadhaar number" %}
+            {% include "students/_field.html" with field=form.passport_number required=False %}
+          </div>
+        </div>
+
+        <!-- C. FAMILY -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">👨‍👩‍👧</span>
+            <span>C. Family Information</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="form-group full">
+              <label for="{{ form.permanent_address.id_for_label }}">
+                {{ form.permanent_address.label }} <span class="req">*</span>
+              </label>
+              {{ form.permanent_address }}
+              {% if form.permanent_address.errors %}<div class="invalid-feedback">{{ form.permanent_address.errors.0 }}</div>{% endif %}
+            </div>
+            {% include "students/_field.html" with field=form.guardian_name required=True %}
+            {% include "students/_field.html" with field=form.guardian_mobile required=True %}
+            {% include "students/_field.html" with field=form.guardian_occupation required=True %}
+            {% include "students/_field.html" with field=form.guardian_annual_income required=True hint="Annual income in ₹" %}
+          </div>
+        </div>
+
+        <!-- D. ACADEMIC -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">📚</span>
+            <span>D. Academic Information</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body">
+            {% include "students/_field.html" with field=form.tenth_percentage required=True hint="e.g., 85.50" %}
+            {% include "students/_field.html" with field=form.tenth_passing_year required=True hint="e.g., 2020" %}
+            {% include "students/_field.html" with field=form.twelfth_percentage required=False hint="Leave blank if Diploma" %}
+            {% include "students/_field.html" with field=form.twelfth_passing_year required=False hint="Leave blank if Diploma" %}
+            {% include "students/_field.html" with field=form.diploma_percentage required=False hint="Leave blank if 12th" %}
+            {% include "students/_field.html" with field=form.diploma_passing_year required=False hint="Leave blank if 12th" %}
+            {% include "students/_field.html" with field=form.ogpa required=True hint="e.g., 8.45 (out of 10)" %}
+          </div>
+        </div>
+
+        <!-- E. ARREARS -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">📊</span>
+            <span>E. Arrears Information</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body">
+            {% include "students/_field.html" with field=form.history_of_arrears required=True %}
+            {% include "students/_field.html" with field=form.current_backlog required=True %}
+            {% include "students/_field.html" with field=form.number_of_backlogs required=False hint="Enter 0 if no current backlog" %}
+            <div class="form-group full">
+              <label for="{{ form.remarks.id_for_label }}">{{ form.remarks.label }}</label>
+              {{ form.remarks }}
+              {% if form.remarks.errors %}<div class="invalid-feedback">{{ form.remarks.errors.0 }}</div>{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- F. SKILLS -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">💻</span>
+            <span>F. Skills Information</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body full-width">
+            <div class="form-group">
+              <label>Programming Languages Known</label>
+              <div class="lang-checkboxes">
+                {% for widget in form.programming_languages_list %}
+                <label class="lang-check">{{ widget.tag }} <span>{{ widget.choice_label }}</span></label>
+                {% endfor %}
+              </div>
+              <div style="margin-top:8px;">
+                <label for="{{ form.programming_languages_other.id_for_label }}" style="font-size:.8rem;color:#6b7280;">Other:</label>
+                {{ form.programming_languages_other }}
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Communication (Spoken) Languages Known</label>
+              <div class="lang-checkboxes">
+                {% for widget in form.communication_languages_list %}
+                <label class="lang-check">{{ widget.tag }} <span>{{ widget.choice_label }}</span></label>
+                {% endfor %}
+              </div>
+              <div style="margin-top:8px;">
+                <label for="{{ form.communication_languages_other.id_for_label }}" style="font-size:.8rem;color:#6b7280;">Other:</label>
+                {{ form.communication_languages_other }}
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="{{ form.additional_skills.id_for_label }}">{{ form.additional_skills.label }}</label>
+              {{ form.additional_skills }}
+            </div>
+          </div>
+        </div>
+
+        <!-- G. INTERNSHIP -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">🏢</span>
+            <span>G. Internship Information</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body">
+            {% include "students/_field.html" with field=form.internship_company required=False %}
+            {% include "students/_field.html" with field=form.internship_dates required=False hint="e.g., Jan 2025 – Mar 2025" %}
+          </div>
+        </div>
+
+        <!-- H. FACILITIES -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">💡</span>
+            <span>H. Facilities</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body">
+            {% include "students/_field.html" with field=form.laptop_desktop required=True %}
+            {% include "students/_field.html" with field=form.high_speed_internet required=True %}
+          </div>
+        </div>
+
+        <!-- I. CAREER -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">🎯</span>
+            <span>I. Career Preference</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body">
+            {% include "students/_field.html" with field=form.career_preference required=True %}
+            {% include "students/_field.html" with field=form.willingness_to_relocate required=True %}
+          </div>
+        </div>
+
+        <!-- J. COURSES -->
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">📖</span>
+            <span>J. Courses and Internship</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body full-width">
+            <div class="form-group">
+              <label>Two NPTEL/SWAYAM Courses Completed</label>
+              <div class="nptel-group">
+                <div>
+                  <label style="font-size:.8rem;color:#6b7280;">Course 1</label>
+                  {{ form.nptel_course_1 }}
+                </div>
+                <div>
+                  <label style="font-size:.8rem;color:#6b7280;">Course 2</label>
+                  {{ form.nptel_course_2 }}
+                </div>
+              </div>
+            </div>
+            {% include "students/_field.html" with field=form.future_internship required=True hint="Internship from December 2026 to April 2027" %}
+          </div>
+        </div>
+
+        <!-- K. DECLARATION -->
+        <div class="form-section">
+          <div class="section-header" style="background:linear-gradient(135deg,#065f46,#10b981);">
+            <span class="section-icon">✅</span>
+            <span>K. Declaration</span>
+            <span class="section-toggle">▼</span>
+          </div>
+          <div class="section-body full-width">
+            <div class="form-group full">
+              <label class="tpc-checkbox" for="{{ form.tpc_acceptance.id_for_label }}">
+                {{ form.tpc_acceptance }}
+                <div class="tpc-text">
+                  I, the undersigned, hereby accept and agree to abide by all the rules and regulations 
+                  of the <strong>Training and Placement Cell (TPC)</strong> of Annamalai University. 
+                  I confirm that all information provided above is true and accurate to the best of my knowledge.
+                </div>
+              </label>
+              {% if form.tpc_acceptance.errors %}
+              <div class="invalid-feedback">{{ form.tpc_acceptance.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="form-actions">
+          <button type="submit" class="btn-submit">✅ Submit Form</button>
+          <button type="reset" class="btn-reset">↺ Reset Form</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/form.js' %}"></script>
+</body>
+</html>

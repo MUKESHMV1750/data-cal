@@ -1,0 +1,95 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Form Control{% endblock %}
+{% block page_title %}⚙️ Form Control{% endblock %}
+
+{% block content %}
+<div style="max-width:720px;">
+  <!-- Current Status Card -->
+  {% if form_open %}
+  <div style="background:linear-gradient(135deg,#064e3b,#10b981);border-radius:16px;padding:28px;margin-bottom:24px;color:#fff;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+  {% else %}
+  <div style="background:linear-gradient(135deg,#7f1d1d,#ef4444);border-radius:16px;padding:28px;margin-bottom:24px;color:#fff;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+  {% endif %}
+    <div style="font-size:3rem;">{% if form_open %}🟢{% else %}🔴{% endif %}</div>
+    <div>
+      <div style="font-size:.85rem;opacity:.8;margin-bottom:4px;">Current Form Status</div>
+      <div style="font-size:1.8rem;font-weight:800;">
+        {% if form_open %}OPEN — Accepting Submissions{% else %}CLOSED — Not Accepting{% endif %}
+      </div>
+      {% if form_settings %}
+      <div style="font-size:.82rem;opacity:.75;margin-top:4px;">
+        {% if form_settings.opening_date %}
+        Opens: {{ form_settings.opening_date|date:"d-m-Y" }} {{ form_settings.opening_time|time:"H:i" }} |
+        {% endif %}
+        {% if form_settings.closing_date %}
+        Closes: {{ form_settings.closing_date|date:"d-m-Y" }} {{ form_settings.closing_time|time:"H:i" }}
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Settings Form -->
+  <div class="form-control-card">
+    <div style="background:linear-gradient(135deg,#1e3a5f,#2563eb);padding:16px 24px;color:#fff;">
+      <h3 style="font-size:1rem;font-weight:700;">⚙️ Configure Form Settings</h3>
+      <p style="font-size:.82rem;opacity:.8;margin-top:2px;">Set opening/closing date & time. The form will automatically open and close based on these settings.</p>
+    </div>
+    <div style="padding:28px;">
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- Form Status Toggle -->
+        <div style="margin-bottom:24px;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid #e5e7eb;">
+          <label style="font-size:.88rem;font-weight:700;color:#374151;display:flex;align-items:center;gap:10px;cursor:pointer;">
+            {{ form.is_active }}
+            <span>Form is Active (Enable/Disable regardless of dates)</span>
+          </label>
+          <p style="font-size:.78rem;color:#6b7280;margin-top:6px;padding-left:24px;">
+            Uncheck this to immediately close the form, overriding date/time settings.
+          </p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+          <div>
+            <label style="font-size:.82rem;font-weight:700;color:#6b7280;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">📅 Opening Date</label>
+            {{ form.opening_date }}
+            {% if form.opening_date.errors %}<div style="color:#ef4444;font-size:.78rem;margin-top:3px;">{{ form.opening_date.errors.0 }}</div>{% endif %}
+          </div>
+          <div>
+            <label style="font-size:.82rem;font-weight:700;color:#6b7280;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">🕐 Opening Time</label>
+            {{ form.opening_time }}
+            {% if form.opening_time.errors %}<div style="color:#ef4444;font-size:.78rem;margin-top:3px;">{{ form.opening_time.errors.0 }}</div>{% endif %}
+          </div>
+          <div>
+            <label style="font-size:.82rem;font-weight:700;color:#6b7280;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">📅 Closing Date</label>
+            {{ form.closing_date }}
+            {% if form.closing_date.errors %}<div style="color:#ef4444;font-size:.78rem;margin-top:3px;">{{ form.closing_date.errors.0 }}</div>{% endif %}
+          </div>
+          <div>
+            <label style="font-size:.82rem;font-weight:700;color:#6b7280;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">🕐 Closing Time</label>
+            {{ form.closing_time }}
+            {% if form.closing_time.errors %}<div style="color:#ef4444;font-size:.78rem;margin-top:3px;">{{ form.closing_time.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="background:#dbeafe;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:.85rem;color:#1e40af;">
+          ℹ️ <strong>How it works:</strong> If "Active" is checked and current date/time is within the opening–closing window, the form will be OPEN. Otherwise it will be CLOSED.
+          Leave dates blank to keep the form permanently open/closed based on the Active toggle alone.
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg">💾 Save Form Settings</button>
+      </form>
+    </div>
+  </div>
+</div>
+<style>
+  input[type="date"], input[type="time"] {
+    width:100%;padding:10px 14px;border:1.5px solid #d1d5db;border-radius:8px;
+    font-size:.9rem;font-family:'Poppins',sans-serif;outline:none;
+    transition:border-color .2s;
+  }
+  input[type="date"]:focus, input[type="time"]:focus { border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+  input[type="checkbox"] { width:18px;height:18px;accent-color:#2563eb;cursor:pointer; }
+</style>
+{% endblock %}

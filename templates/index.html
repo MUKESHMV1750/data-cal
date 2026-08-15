@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Data Collection — Training & Placement Cell</title>
+  <meta name="description" content="Official student data collection portal for Training and Placement Cell. Submit your information for campus placement.">
+  {% load static %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="index-page">
+  <nav class="index-nav">
+    <div class="index-brand">
+      <div class="index-brand-icon">🎓</div>
+      <div class="index-brand-text">
+        <h1>Annamalai University</h1>
+        <p>Training & Placement Cell</p>
+      </div>
+    </div>
+    <a href="{% url 'admin_login' %}" class="btn-hero-secondary" style="padding:10px 22px;font-size:.88rem;">
+      🔐 Admin Login
+    </a>
+  </nav>
+
+  <div class="index-hero">
+    <div class="hero-card">
+      <div class="hero-badge">📋 Academic Year 2025–26</div>
+      <h1 class="hero-title">Student Data<br><span>Collection Portal</span></h1>
+      <p class="hero-desc">
+        Submit your academic, personal, and career information to the Training &amp; Placement Cell.
+        Your data helps us connect you with the best campus placement opportunities.
+      </p>
+
+      <div class="hero-buttons">
+        {% if form_open %}
+          <a href="{% url 'student_form' %}" id="openFormBtn" class="btn-hero-primary">
+            📝 Open Student Form
+          </a>
+        {% else %}
+          <span class="btn-closed">🔒 Form Currently Closed</span>
+        {% endif %}
+        <a href="{% url 'admin_login' %}" class="btn-hero-secondary">
+          🔐 Admin Panel
+        </a>
+      </div>
+
+      {% if not form_open %}
+      <p style="color:rgba(255,255,255,0.6);font-size:.85rem;margin-top:16px;">
+        ⚠ The student data collection form is currently closed. Please contact the administrator.
+      </p>
+      {% endif %}
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="val">45+</div>
+          <div class="lbl">Data Fields</div>
+        </div>
+        <div class="hero-stat">
+          <div class="val">100%</div>
+          <div class="lbl">Secure</div>
+        </div>
+        <div class="hero-stat">
+          <div class="val">24/7</div>
+          <div class="lbl">Available</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="index-footer">
+    <p>© 2025–26 Annamalai University | Training & Placement Cell | All Rights Reserved</p>
+  </footer>
+</div>
+
+<!-- Toast container for Django messages -->
+{% if messages %}
+<div class="toast-container">
+  {% for msg in messages %}
+  <div class="toast {% if msg.tags == 'error' %}error{% elif msg.tags == 'warning' %}warning{% else %}success{% endif %}">
+    <span class="toast-icon">{% if msg.tags == 'error' %}❌{% elif msg.tags == 'warning' %}⚠️{% else %}✅{% endif %}</span>
+    <span class="toast-msg">{{ msg }}</span>
+    <span class="toast-close">✕</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

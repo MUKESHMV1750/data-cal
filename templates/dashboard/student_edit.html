@@ -1,0 +1,145 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Edit {{ student.name }}{% endblock %}
+{% block page_title %}✏️ Edit Student{% endblock %}
+
+{% block content %}
+<div style="max-width:900px;">
+  <div style="margin-bottom:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+    <a href="{% url 'admin_student_detail' student.pk %}" class="btn btn-secondary">← Back to Detail</a>
+    <span style="color:#6b7280;font-size:.9rem;">Editing: <strong>{{ student.name }}</strong> ({{ student.enrollment_number }})</span>
+  </div>
+
+  {% if form.errors %}
+  <div class="alert alert-danger" style="margin-bottom:20px;">
+    <span>⚠</span>
+    <div>
+      <strong>Please correct the errors:</strong>
+      <ul style="margin-top:6px;padding-left:18px;font-size:.88rem;">
+        {% for field in form %}{% for e in field.errors %}<li>{{ field.label }}: {{ e }}</li>{% endfor %}{% endfor %}
+        {% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {% load static %}
+
+    <style>
+      .edit-section { background:#fff;border-radius:14px;border:1px solid #e5e7eb;margin-bottom:20px;overflow:hidden; }
+      .edit-sh { background:linear-gradient(135deg,#1e3a5f,#1e40af);color:#fff;padding:12px 20px;font-size:.9rem;font-weight:700; }
+      .edit-sb { padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:16px 24px; }
+      .edit-sb .full { grid-column:1/-1; }
+      .edit-label { font-size:.82rem;font-weight:600;color:#6b7280;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em; }
+      .edit-input { width:100%;padding:9px 13px;border:1.5px solid #d1d5db;border-radius:8px;font-size:.9rem;font-family:'Poppins',sans-serif;outline:none;transition:border-color .2s; }
+      .edit-input:focus { border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+      .edit-error { color:#ef4444;font-size:.78rem;margin-top:3px; }
+      @media(max-width:600px){.edit-sb{grid-template-columns:1fr;}.edit-sb .full{grid-column:1;}}
+    </style>
+
+    {% for section_name, fields in form|dictsort:"0" %}{% endfor %}
+
+    <!-- Personal -->
+    <div class="edit-section">
+      <div class="edit-sh">👤 Personal Information</div>
+      <div class="edit-sb">
+        {% for f in form %}
+          {% if f.html_name in "name,enrollment_number,exam_registration_number,umis_number,program_of_study,branch,year_of_completion,email,mobile,alternate_mobile,date_of_birth,gender,category,blood_group" %}
+          <div {% if f.html_name == 'permanent_address' %}class="full"{% endif %}>
+            <label class="edit-label">{{ f.label }}{% if f.field.required %} *{% endif %}</label>
+            {{ f }}
+            {% if f.errors %}<div class="edit-error">{{ f.errors.0 }}</div>{% endif %}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Identification -->
+    <div class="edit-section">
+      <div class="edit-sh">🪪 Identification</div>
+      <div class="edit-sb">
+        {% for f in form %}{% if f.html_name in "pan_number,aadhaar_number,passport_number" %}
+        <div><label class="edit-label">{{ f.label }}</label>{{ f }}{% if f.errors %}<div class="edit-error">{{ f.errors.0 }}</div>{% endif %}</div>
+        {% endif %}{% endfor %}
+      </div>
+    </div>
+
+    <!-- Family -->
+    <div class="edit-section">
+      <div class="edit-sh">👨‍👩‍👧 Family</div>
+      <div class="edit-sb">
+        <div class="full">
+          <label class="edit-label">Permanent Address *</label>
+          {{ form.permanent_address }}{% if form.permanent_address.errors %}<div class="edit-error">{{ form.permanent_address.errors.0 }}</div>{% endif %}
+        </div>
+        {% for f in form %}{% if f.html_name in "guardian_name,guardian_mobile,guardian_occupation,guardian_annual_income" %}
+        <div><label class="edit-label">{{ f.label }} *</label>{{ f }}{% if f.errors %}<div class="edit-error">{{ f.errors.0 }}</div>{% endif %}</div>
+        {% endif %}{% endfor %}
+      </div>
+    </div>
+
+    <!-- Academic -->
+    <div class="edit-section">
+      <div class="edit-sh">📚 Academic</div>
+      <div class="edit-sb">
+        {% for f in form %}{% if f.html_name in "tenth_percentage,tenth_passing_year,twelfth_percentage,twelfth_passing_year,diploma_percentage,diploma_passing_year,ogpa" %}
+        <div><label class="edit-label">{{ f.label }}{% if f.field.required %} *{% endif %}</label>{{ f }}{% if f.errors %}<div class="edit-error">{{ f.errors.0 }}</div>{% endif %}</div>
+        {% endif %}{% endfor %}
+      </div>
+    </div>
+
+    <!-- Arrears -->
+    <div class="edit-section">
+      <div class="edit-sh">📊 Arrears</div>
+      <div class="edit-sb">
+        {% for f in form %}{% if f.html_name in "history_of_arrears,current_backlog,number_of_backlogs" %}
+        <div><label class="edit-label">{{ f.label }}</label>{{ f }}{% if f.errors %}<div class="edit-error">{{ f.errors.0 }}</div>{% endif %}</div>
+        {% endif %}{% endfor %}
+        <div class="full"><label class="edit-label">Remarks</label>{{ form.remarks }}{% if form.remarks.errors %}<div class="edit-error">{{ form.remarks.errors.0 }}</div>{% endif %}</div>
+      </div>
+    </div>
+
+    <!-- Skills + Internship + Facilities + Career + Courses -->
+    <div class="edit-section">
+      <div class="edit-sh">💻 Skills, Internship & Career</div>
+      <div class="edit-sb">
+        <div class="full">
+          <label class="edit-label">Programming Languages</label>
+          <div style="border:1.5px solid #d1d5db;border-radius:8px;padding:10px;background:#f9fafb;display:flex;flex-wrap:wrap;gap:8px;">
+            {% for widget in form.programming_languages_list %}
+            <label style="display:flex;align-items:center;gap:5px;padding:4px 10px;background:#fff;border:1.5px solid #d1d5db;border-radius:100px;font-size:.82rem;cursor:pointer;">
+              {{ widget.tag }} {{ widget.choice_label }}
+            </label>
+            {% endfor %}
+          </div>
+          <div style="margin-top:8px;"><label class="edit-label" style="text-transform:none;font-size:.78rem;">Other:</label>{{ form.programming_languages_other }}</div>
+        </div>
+        <div class="full">
+          <label class="edit-label">Communication Languages</label>
+          <div style="border:1.5px solid #d1d5db;border-radius:8px;padding:10px;background:#f9fafb;display:flex;flex-wrap:wrap;gap:8px;">
+            {% for widget in form.communication_languages_list %}
+            <label style="display:flex;align-items:center;gap:5px;padding:4px 10px;background:#fff;border:1.5px solid #d1d5db;border-radius:100px;font-size:.82rem;cursor:pointer;">
+              {{ widget.tag }} {{ widget.choice_label }}
+            </label>
+            {% endfor %}
+          </div>
+          <div style="margin-top:8px;"><label class="edit-label" style="text-transform:none;font-size:.78rem;">Other:</label>{{ form.communication_languages_other }}</div>
+        </div>
+        <div class="full"><label class="edit-label">Additional Skills</label>{{ form.additional_skills }}</div>
+        {% for f in form %}{% if f.html_name in "internship_company,internship_dates,laptop_desktop,high_speed_internet,career_preference,willingness_to_relocate,future_internship,tpc_acceptance" %}
+        <div><label class="edit-label">{{ f.label }}</label>{{ f }}{% if f.errors %}<div class="edit-error">{{ f.errors.0 }}</div>{% endif %}</div>
+        {% endif %}{% endfor %}
+        <div><label class="edit-label">NPTEL Course 1</label>{{ form.nptel_course_1 }}</div>
+        <div><label class="edit-label">NPTEL Course 2</label>{{ form.nptel_course_2 }}</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;">
+      <button type="submit" class="btn btn-primary btn-lg">✅ Update Student</button>
+      <a href="{% url 'admin_student_detail' student.pk %}" class="btn btn-secondary btn-lg">✕ Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

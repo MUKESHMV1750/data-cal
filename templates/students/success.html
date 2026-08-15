@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Form Submitted Successfully — TPC</title>
+  {% load static %}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="success-page">
+  <div class="success-card">
+    <div class="success-icon">🎉</div>
+    <h2>Submitted Successfully!</h2>
+    <p>
+      Your information has been received by the <strong>Training & Placement Cell</strong>.<br>
+      We will contact you regarding campus placement activities.
+    </p>
+    <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:16px;margin-bottom:28px;font-size:.9rem;color:rgba(255,255,255,.85);">
+      <p>📧 Watch your registered email for further communications.</p>
+      <p style="margin-top:6px;">📞 Contact TPC for any queries.</p>
+    </div>
+    <a href="{% url 'index' %}" class="btn-hero-primary" style="display:inline-flex;align-items:center;gap:8px;">
+      🏠 Go to Home
+    </a>
+  </div>
+</div>
+</body>
+</html>
